@@ -274,5 +274,6 @@ def get_wf_diffusion(structure, temps, snap_num = 0, db_file=None, name="Diffusi
     fw = Firework(t, name=name, spec=priority_spec)
     wf = Workflow([fw], name=structure.composition.reduced_formula+"_diffusion")
     wf = powerups.add_modify_incar_envchk(wf)
+    return wf
 
 from mpmorph.workflow.mdtasks import SpawnMDFWTask, CopyCalsHome, RelaxStaticTask, DiffusionTask, WriteSetTask
