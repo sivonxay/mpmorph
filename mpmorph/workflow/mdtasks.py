@@ -321,19 +321,20 @@ class RelaxStaticTask(FireTaskBase):
 class DiffusionTask(FireTaskBase):
 
     required_params = ["copy_calcs", "calc_home", "snap_num"]
-    optional_params = ["temps", "name", "db_file", "priority_spec"]
+    optional_params = ["temps", "name", "db_file", "priority_spec", "structure"]
     def run_task(self, fw_spec):
         copy_calcs = self["copy_calcs"]
         calc_home = self["calc_home"]
         snap_num = self["snap_num"]
         db_file = self.get("db_file", None)
         priority_spec = self.get("priority_spec", {})
-
-        if os.path.exists(os.path.join(os.getcwd(),'XDATCAR.gz')):
-            xdat = Xdatcar(os.path.join(os.getcwd(),'XDATCAR.gz'))
-        else:
-            xdat = Xdatcar(os.path.join(os.getcwd(), 'XDATCAR'))
-        structure = xdat.structures[len(xdat.structures)-1]
+        structure = self.get("structure", None)
+        if structure == None:
+            if os.path.exists(os.path.join(os.getcwd(),'XDATCAR.gz')):
+                xdat = Xdatcar(os.path.join(os.getcwd(),'XDATCAR.gz'))
+            else:
+                xdat = Xdatcar(os.path.join(os.getcwd(), 'XDATCAR'))
+            structure = xdat.structures[len(xdat.structures)-1]
 
         name = str(structure.composition.reduced_formula)
         temps = self.get("temps", [500, 1000, 1500])

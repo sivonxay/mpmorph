@@ -390,4 +390,149 @@ class VaspMdToDiffusion(FireTaskBase):
 class VaspMdToStructuralAnalysis(FireTaskBase):
     pass
 
+@explicit_serialize
+class SpawnDiffusionTask(FireTaskBase):
+    """
+    Decides if a new MD calculation should be spawned or if density is found. If so, spawns a new calculation.
+    """
+    required_params = ["pressure_threshold", "max_rescales", "vasp_cmd", "wall_time",
+                       "db_file", "spawn_count", "copy_calcs", "calc_home"]
+    optional_params = ["averaging_fraction", "cool", "final_run", "final_run_steps",
+                       "diffusion", "temperature", "priority_spec"]
+
+    def run_task(self, fw_spec):
+        vasp_cmd = self["vasp_cmd"]
+        wall_time = self["wall_time"]
+        db_file = self["db_file"]
+        max_rescales = self["max_rescales"]
+        pressure_threshold = self["pressure_threshold"]
+        spawn_count = self["spawn_count"]
+        calc_home = self["calc_home"]
+        copy_calcs = self["copy_calcs"]
+        temperature = self.get("temperature", 2500)
+        diffusion_bool = self.get("diffusion", False)
+        priority_spec = self.get("priority_spec", {})
+
+        if spawn_count > max_rescales:
+            # TODO: Log max rescale reached info.
+            _temp_var = 1
+            #return FWAction(defuse_workflow=True)
+
+        name = ("spawnrun" + str(spawn_count))
+
+        current_dir = os.getcwd()
+        snaps = self.get("cool", False)
+        averaging_fraction = self.get("averaging_fraction", 0.5)
+        p = parse_pressure("./", averaging_fraction)[0]
+
+        final_run = self.get("final_run", True)
+
+        pressure_threshold = 5
+
+        if np.fabs(p) > pressure_threshold:
+            t = []
+            # Copy the VASP outputs from previous run. Very first run get its from the initial MDWF which
+            # uses PassCalcLocs. For the rest we just specify the previous dir.
+            if spawn_count == 0:
+                t.append(CopyVaspOutputs(calc_dir=current_dir, contcar_to_poscar=False))
+            else:
+                t.append(CopyVaspOutputs(calc_dir=current_dir, contcar_to_poscar=True))
+
+            t.append(RescaleVolumeTask(initial_pressure=p * 1000.0, initial_temperature=1, beta = 0.000002))
+            t.append(RunVaspCustodian(vasp_cmd=vasp_cmd, gamma_vasp_cmd=">>gamma_vasp_cmd<<",
+                                      handler_group="md", wall_time=wall_time, gzip_output=False))
+            t.append(PassCalcLocs(name=name))
+            # Will implement the database insertion
+            # t.append(VaspToDbTask(db_file=db_file,
+            #                       additional_fields={"task_label": "density_adjustment"}))
+            if copy_calcs:
+                t.append(CopyCalsHome(calc_home=calc_home, run_name=name))
+            t.append(SpawnDiffusionTask(pressure_threshold=pressure_threshold,
+                                   max_rescales=max_rescales,
+                                   wall_time=wall_time,
+                                   vasp_cmd=vasp_cmd,
+                                   db_file=db_file,
+                                   spawn_count=spawn_count + 1,
+                                   copy_calcs=copy_calcs,
+                                   calc_home=calc_home,
+                                   averaging_fraction=averaging_fraction,
+                                   cool=snaps,
+                                   temperature=temperature,
+                                   diffusion=diffusion_bool,
+                                   final_run=final_run,
+                                   priority_spec = priority_spec))
+            new_fw = Firework(t, name=name, spec=priority_spec)
+            return FWAction(stored_data={'pressure': p}, additions=[new_fw])
+        else:
+            fw_list = []
+            if os.path.exists(os.path.join(current_dir, 'CONTCAR')):
+                _poscar = Poscar.from_file(os.path.join(current_dir, 'CONTCAR'))
+            else:
+                _poscar = Poscar.from_file(os.path.join(current_dir, 'POSCAR'))
+
+            name = str(_poscar.structure.composition.reduced_formula)
+            if final_run or snaps:
+                if diffusion_bool:
+                    _steps = 40000
+                    _name = "diffusion_run"
+                else:
+                    _steps = 10000
+                    _name = "longrun"
+                fw_list = self.get_final_run_fws(_poscar.structure, name=_name, copy_calcs=copy_calcs,
+                                                 calc_home=calc_home, target_steps=_steps, temperature=temperature,
+                                                 priority_spec=priority_spec)
+            if snaps:
+                t = []
+                t.append(CopyVaspOutputs(calc_loc=True, contcar_to_poscar=True, additional_files=["XDATCAR"]))
+                t.append(StructureSamplerTask(copy_calcs=copy_calcs, calc_home=calc_home, n_snapshots=1, priority_spec=priority_spec))
+                if len(fw_list) > 0:
+                    new_fw = Firework(t, name=name + "structure_sampler", parents=fw_list[len(fw_list)-1], spec=priority_spec)
+                else:
+                    new_fw = Firework(t, name=name + "structure_sampler", spec=priority_spec)
+                fw_list.append(new_fw)
+            if snaps or final_run:
+                wf = Workflow(fw_list, name=name + "_" + str(temperature) + "_longruns")
+                return FWAction(stored_data={'pressure':p, 'density_calculated': True}, additions=wf)
+            return FWAction(stored_data={'pressure':p, 'density_calculated': True})
+
+    def get_final_run_fws(self, structure, target_steps=40000, copy_calcs=False, calc_home=None,
+                          run_steps=5000, run_time = 86400, temperature=2500, vasp_cmd=">>vasp_cmd<<", db_file=None, name="longrun",
+                   optional_MDWF_params=None, override_default_vasp_params=None, vasp_input_set=None, priority_spec={}):
+        fw_list = []
+        _steps = 0
+        spawn_count = 0
+
+        optional_MDWF_params = optional_MDWF_params or {}
+        optional_MDWF_params['spec'] = priority_spec
+        override_default_vasp_params = override_default_vasp_params or {}
+        override_default_vasp_params['user_incar_settings'] = override_default_vasp_params.get(
+            'user_incar_settings') or {}
+        override_default_vasp_params['user_incar_settings'].update({"ISIF": 1, "LWAVE": False})
+
+        fw1 = MDFW(structure=structure, start_temp=temperature, end_temp=temperature, nsteps=run_steps,
+                   name=name + "_" + str(spawn_count), vasp_input_set=vasp_input_set, db_file=db_file,
+                   vasp_cmd=vasp_cmd, wall_time=run_time, override_default_vasp_params=override_default_vasp_params,
+                   **optional_MDWF_params)
+        _steps += run_steps
+        spawn_count += 1
+        fw_list.append(fw1)
+
+        while _steps < target_steps:
+            _name = (name + "_" + str(spawn_count))
+            t = []
+            t.append(CopyVaspOutputs(calc_loc=True, contcar_to_poscar=True, additional_files=["XDATCAR", "OSZICAR", "DOSCAR"]))
+            if spawn_count == 1:
+                if copy_calcs:
+                    t.append(CopyCalsHome(calc_home=calc_home, run_name=name + "_0"))
+            t.append(RunVaspCustodian(vasp_cmd=vasp_cmd, gamma_vasp_cmd=">>gamma_vasp_cmd<<",
+                                      handler_group="md", wall_time=run_time, gzip_output=False))
+            if copy_calcs:
+                t.append(CopyCalsHome(calc_home=calc_home, run_name=_name))
+            t.append(PassCalcLocs(name=_name))
+            new_fw = Firework(tasks=t, name=_name, parents=[fw_list[spawn_count-1]], spec=priority_spec)
+            _steps += run_steps
+            spawn_count += 1
+            fw_list.append(new_fw)
+        return fw_list
+
 from mpmorph.workflow.temp_workflows import get_wf_structure_sampler, get_relax_static_wf, get_wf_density

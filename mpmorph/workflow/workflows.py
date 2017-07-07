@@ -266,5 +266,13 @@ def get_simulated_anneal_wf(structure, start_temp, snap_num, end_temp=500, temp_
     wf = powerups.add_modify_incar_envchk(wf)
     return wf
 
+def get_wf_diffusion(structure, temps, snap_num = 0, db_file=None, name="Diffusion_Spawner",
+                     copy_calcs=False, calc_home="~/wflows", priority_spec={}):
+    t = []
+    t.append(DiffusionTask(structure=structure, temps=temps,copy_calcs=copy_calcs,
+                           calc_home=calc_home, db_file=db_file, snap_num=snap_num, priority_spec=priority_spec))
+    fw = Firework(t, name, spec=priority_spec)
+    wf = Workflow([fw], name=structure.composition.reduced_formula+"_diffusion")
+    wf = powerups.add_modify_incar_envchk(wf)
 
 from mpmorph.workflow.mdtasks import SpawnMDFWTask, CopyCalsHome, RelaxStaticTask, DiffusionTask, WriteSetTask
