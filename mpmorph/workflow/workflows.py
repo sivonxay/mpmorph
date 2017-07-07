@@ -10,7 +10,7 @@ from pymatgen.core.structure import Structure
 import os
 
 
-def get_wf_density(structure, temperature, pressure_threshold=5.0, max_rescales=6, nsteps=2000, wall_time=19200,
+def get_wf_density(structure, temperature, pressure_threshold=5.0, max_rescales=6, nsteps=2000, wall_time=86400,
                    vasp_input_set=None, vasp_cmd=">>vasp_cmd<<", db_file=">>db_file<<", name="density_finder",
                    optional_MDWF_params=None, override_default_vasp_params=None,
                    amorphous_maker_params=None, copy_calcs=False, calc_home="~/wflows",
