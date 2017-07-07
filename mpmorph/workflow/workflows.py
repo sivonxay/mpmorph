@@ -271,7 +271,7 @@ def get_wf_diffusion(structure, temps, snap_num = 0, db_file=None, name="Diffusi
     t = []
     t.append(DiffusionTask(structure=structure, temps=temps,copy_calcs=copy_calcs,
                            calc_home=calc_home, db_file=db_file, snap_num=snap_num, priority_spec=priority_spec))
-    fw = Firework(t, name, spec=priority_spec)
+    fw = Firework(t, name=name, spec=priority_spec)
     wf = Workflow([fw], name=structure.composition.reduced_formula+"_diffusion")
     wf = powerups.add_modify_incar_envchk(wf)
 
