@@ -80,7 +80,10 @@ class EnvironmentTracker():
 
         return tracking_list
 
-def process_frame(frame, structure, bond_lengths, prune_els=[]):
+def process_frame(data):
+    frame, structure, bond_lengths, prune_els = \
+        data[0], data[1], data[2], data[3]
+
     ca = ClusteringAnalyzer(structure, bond_lengths=bond_lengths)
     clusters = ca.get_clusters(prune_els=prune_els)
     neighbors = ca.cluster_neighbors

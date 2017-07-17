@@ -20,8 +20,8 @@
             <file leaf-file-name="environment_tracking.py" pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/analysis/environment_tracking.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="302">
-                    <caret line="25" column="31" lean-forward="true" selection-start-line="25" selection-start-column="31" selection-end-line="25" selection-end-column="31" />
+                  <state relative-caret-position="422">
+                    <caret line="85" column="0" lean-forward="true" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
                     <folding>
                       <element signature="e#0#52#0" expanded="true" />
                     </folding>
@@ -95,8 +95,8 @@
       <file leaf-file-name="structural_analysis.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analysis/structural_analysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1390">
-              <caret line="607" column="0" lean-forward="true" selection-start-line="607" selection-start-column="0" selection-end-line="607" selection-end-column="0" />
+            <state relative-caret-position="310">
+              <caret line="535" column="0" lean-forward="false" selection-start-line="535" selection-start-column="0" selection-end-line="536" selection-end-column="0" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -779,8 +779,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/analysis/structural_analysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1390">
-          <caret line="607" column="0" lean-forward="true" selection-start-line="607" selection-start-column="0" selection-end-line="607" selection-end-column="0" />
+        <state relative-caret-position="310">
+          <caret line="535" column="0" lean-forward="false" selection-start-line="535" selection-start-column="0" selection-end-line="536" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -789,8 +789,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/analysis/environment_tracking.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="302">
-          <caret line="25" column="31" lean-forward="true" selection-start-line="25" selection-start-column="31" selection-end-line="25" selection-end-column="31" />
+        <state relative-caret-position="422">
+          <caret line="85" column="0" lean-forward="true" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
           </folding>
