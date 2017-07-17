@@ -38,12 +38,6 @@ class EnvironmentTracker():
         #     cluster_array[i] = clusters
         return neighbor_array, cluster_array, track_neighbor_array
 
-    def process_frame(self, frame, structure, bond_lengths, prune_els=[]):
-        ca = ClusteringAnalyzer(structure, bond_lengths=bond_lengths)
-        clusters = ca.get_clusters(prune_els=prune_els)
-        neighbors = ca.cluster_neighbors
-        track_neighbors = ca.track_neighbors
-        return {"frame":frame, "neighbors":neighbors, "clusters":clusters, "track_neighbors":track_neighbors}
 
     def get_bond_distance(self, structures):
         bin_size = 0.1
@@ -85,3 +79,10 @@ class EnvironmentTracker():
                     tracking_list[i][j]+=1
 
         return tracking_list
+
+def process_frame(frame, structure, bond_lengths, prune_els=[]):
+    ca = ClusteringAnalyzer(structure, bond_lengths=bond_lengths)
+    clusters = ca.get_clusters(prune_els=prune_els)
+    neighbors = ca.cluster_neighbors
+    track_neighbors = ca.track_neighbors
+    return {"frame":frame, "neighbors":neighbors, "clusters":clusters, "track_neighbors":track_neighbors}
