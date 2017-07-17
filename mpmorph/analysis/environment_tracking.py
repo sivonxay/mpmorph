@@ -5,7 +5,7 @@ from mpmorph.analysis.structural_analysis import RadialDistributionFunction
 import matplotlib.pyplot as plt
 import numpy as np
 import multiprocessing
-
+from multiprocessing import Pool
 class EnvironmentTracker():
     # TODO: Add functionality for multielemental clusters
     def __init__(self):
@@ -16,22 +16,34 @@ class EnvironmentTracker():
             frames = len(structures)
         bond_lengths = self.get_bond_distance(structures)
 
+        pool = Pool(multiprocessing.cpu_count())
+        frames = [(i, structures[len(structures)-frames+i], bond_lengths, prune_els) for i in range(frames)]
+        results = pool.map(process_frame, frames)
+        pool.close()
+        pool.join()
+
         neighbor_array = (frames)*[None] #Predeclare 3d array of length of xdatcar
         cluster_array = (frames)*[None]
         track_neighbor_array = (frames)*[None]
-        for i in range(frames):
-            neighbors, clusters, track_neighbors = self.process_frame(structure=structures[len(structures)-frames+i], bond_lengths=bond_lengths, prune_els=prune_els)
-            track_neighbor_array[i] = track_neighbors
-            neighbor_array[i] = neighbors
-            cluster_array[i] = clusters
+        for result in results:
+            neighbor_array[result['frame']] = result['neighbors']
+            cluster_array[result['frame']] = result['clusters']
+            track_neighbor_array[result['frame']] = result['track_neighbors']
+
+
+        # for i in range(frames):
+        #     neighbors, clusters, track_neighbors = self.process_frame(structure=structures[len(structures)-frames+i], bond_lengths=bond_lengths, prune_els=prune_els)
+        #     track_neighbor_array[i] = track_neighbors
+        #     neighbor_array[i] = neighbors
+        #     cluster_array[i] = clusters
         return neighbor_array, cluster_array, track_neighbor_array
 
-    def process_frame(self, structure, bond_lengths, prune_els=[]):
+    def process_frame(self, frame, structure, bond_lengths, prune_els=[]):
         ca = ClusteringAnalyzer(structure, bond_lengths=bond_lengths)
         clusters = ca.get_clusters(prune_els=prune_els)
         neighbors = ca.cluster_neighbors
         track_neighbors = ca.track_neighbors
-        return neighbors, clusters, track_neighbors
+        return {"frame":frame, "neighbors":neighbors, "clusters":clusters, "track_neighbors":track_neighbors}
 
     def get_bond_distance(self, structures):
         bin_size = 0.1

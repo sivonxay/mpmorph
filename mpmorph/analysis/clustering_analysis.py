@@ -1,4 +1,5 @@
 from pymatgen import Site, Structure, Element
+from operator import itemgetter
 import numpy as np
 
 class ClusteringAnalyzer(object):
@@ -39,7 +40,7 @@ class ClusteringAnalyzer(object):
 
         self.track_distance_matrix = self.get_track_distance_matrix(structure=pruned_structure, track_els=track_els)
         self.cluster_distance_matrix = self.get_distance_matrix(structure=cluster_structure)
-        self.track_neighbors = self.get_neighbors(distance_matrix = self.track_distance_matrix, radius=self.bond_lengths[('Li', 'Si')])
+        self.track_neighbors = self.get_n_neighbors(distance_matrix = self.track_distance_matrix, radius=self.bond_lengths[('Li', 'Si')], n=2)
         self.cluster_neighbors = self.get_neighbors(distance_matrix = self.cluster_distance_matrix, radius=self.bond_lengths[('Si', 'Si')])
 
         clusters = self.find_clusters()
@@ -81,6 +82,18 @@ class ClusteringAnalyzer(object):
             for j in range(len(distance_matrix[i])):
                 if distance_matrix[i][j] <= radius:
                     neighbors[i].append(j)
+        return neighbors
+
+    def get_n_neighbors(self, distance_matrix, radius, n=1):
+        _neighbors = self.get_neighbors(distance_matrix, radius)
+        neighbors = [[] for i in range(len(_neighbors))]
+        for i in neighbors:
+            neighbor_el = _neighbors[i]
+            raw_neighbors = []
+            for neighbor in neighbor_el:
+                raw_neighbors[i].append([neighbor, distance_matrix[i][neighbor]])
+            sorted(raw_neighbors, key=itemgetter(1))
+            neighbors.append([raw_neighbors[j][0] for j in range(n)])
         return neighbors
 
     def get_mean_distance(self, clusters):
