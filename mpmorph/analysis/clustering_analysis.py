@@ -40,7 +40,7 @@ class ClusteringAnalyzer(object):
 
         self.track_distance_matrix = self.get_track_distance_matrix(structure=pruned_structure, track_els=track_els)
         self.cluster_distance_matrix = self.get_distance_matrix(structure=cluster_structure)
-        self.track_neighbors = self.get_n_neighbors(distance_matrix = self.track_distance_matrix, radius=self.bond_lengths[('Li', 'Si')], n=2)
+        self.track_neighbors = self.get_n_neighbors(distance_matrix = self.track_distance_matrix, radius=self.bond_lengths[('Li', 'Si')], n=1)
         self.cluster_neighbors = self.get_neighbors(distance_matrix = self.cluster_distance_matrix, radius=self.bond_lengths[('Si', 'Si')])
 
         clusters = self.find_clusters()
