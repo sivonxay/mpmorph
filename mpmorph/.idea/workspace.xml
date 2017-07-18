@@ -61,8 +61,8 @@
       <file leaf-file-name="clustering_analysis.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analysis/clustering_analysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="52" column="37" lean-forward="false" selection-start-line="52" selection-start-column="37" selection-end-line="52" selection-end-column="37" />
+            <state relative-caret-position="690">
+              <caret line="94" column="52" lean-forward="true" selection-start-line="94" selection-start-column="52" selection-end-line="94" selection-end-column="52" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
               </folding>
@@ -179,8 +179,8 @@
         <option value="$PROJECT_DIR$/fireworks/powerups.py" />
         <option value="$PROJECT_DIR$/workflow/quench.py" />
         <option value="$PROJECT_DIR$/workflow/converge.py" />
-        <option value="$PROJECT_DIR$/analysis/clustering_analysis.py" />
         <option value="$PROJECT_DIR$/analysis/environment_tracking.py" />
+        <option value="$PROJECT_DIR$/analysis/clustering_analysis.py" />
       </list>
     </option>
   </component>
@@ -789,8 +789,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/analysis/clustering_analysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="52" column="37" lean-forward="false" selection-start-line="52" selection-start-column="37" selection-end-line="52" selection-end-column="37" />
+        <state relative-caret-position="690">
+          <caret line="94" column="52" lean-forward="true" selection-start-line="94" selection-start-column="52" selection-end-line="94" selection-end-column="52" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
           </folding>
