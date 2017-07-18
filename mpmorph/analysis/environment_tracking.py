@@ -85,7 +85,7 @@ def process_frame(data):
         data[0], data[1], data[2], data[3], data[4]
 
     ca = ClusteringAnalyzer(structure, bond_lengths=bond_lengths)
-    clusters = ca.get_clusters(prune_els=prune_els)
+    clusters = ca.get_clusters(prune_els=prune_els, n_neighbors=n_neighbors)
     neighbors = ca.cluster_neighbors
     track_neighbors = ca.track_neighbors
     return_data = {"frame":frame, "neighbors":neighbors, "clusters":clusters, "track_neighbors":track_neighbors}
