@@ -93,7 +93,7 @@ class ClusteringAnalyzer(object):
             for neighbor in neighbor_el:
                 raw_neighbors.append([neighbor, distance_matrix[i][neighbor]])
             sorted(raw_neighbors, key=itemgetter(1))
-            neighbors.append([raw_neighbors[j][0] for j in range(n)])
+            neighbors[i] = [raw_neighbors[j][0] for j in range(n)]
         return neighbors
 
     def get_mean_distance(self, clusters):
