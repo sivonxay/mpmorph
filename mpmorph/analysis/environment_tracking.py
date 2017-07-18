@@ -22,9 +22,9 @@ class EnvironmentTracker():
         pool.close()
         pool.join()
 
-        neighbor_array = (frames)*[None] #Predeclare 3d array of length of xdatcar
-        cluster_array = (frames)*[None]
-        track_neighbor_array = (frames)*[None]
+        neighbor_array = len(frames)*[None] #Predeclare 3d array of length of xdatcar
+        cluster_array = len(frames)*[None]
+        track_neighbor_array = len(frames)*[None]
         for result in results:
             neighbor_array[result['frame']] = result['neighbors']
             cluster_array[result['frame']] = result['clusters']
