@@ -17,7 +17,7 @@ class ClusteringAnalyzer(object):
         self.cluster_distance_matrix = []
         self.neighbors = []
 
-    def get_clusters(self, cluster_els=[Element("Si")], track_els=[Element("Li")], prune_els = None):
+    def get_clusters(self, cluster_els=[Element("Si")], track_els=[Element("Li")], prune_els = None, n_neighbors=1):
         '''
         TODO: Add functionality to remove elements other than the desired
               RDF's of Cluster
@@ -40,7 +40,7 @@ class ClusteringAnalyzer(object):
 
         self.track_distance_matrix = self.get_track_distance_matrix(structure=pruned_structure, track_els=track_els)
         self.cluster_distance_matrix = self.get_distance_matrix(structure=cluster_structure)
-        self.track_neighbors = self.get_n_neighbors(distance_matrix = self.track_distance_matrix, radius=self.bond_lengths[('Li', 'Si')], n=1)
+        self.track_neighbors = self.get_n_neighbors(distance_matrix = self.track_distance_matrix, radius=self.bond_lengths[('Li', 'Si')], n=n_neighbors)
         self.cluster_neighbors = self.get_neighbors(distance_matrix = self.cluster_distance_matrix, radius=self.bond_lengths[('Si', 'Si')])
 
         clusters = self.find_clusters()
@@ -93,7 +93,10 @@ class ClusteringAnalyzer(object):
             for neighbor in neighbor_el:
                 raw_neighbors.append([neighbor, distance_matrix[i][neighbor]])
             sorted(raw_neighbors, key=itemgetter(1))
-            neighbors[i] = [raw_neighbors[j][0] for j in range(n)]
+            if len(raw_neighbors) > n:
+                neighbors[i] = [raw_neighbors[j][0] for j in range(n)]
+            else:
+                neighbors[i] = [raw_neighbors[j][0] for j in range(len(raw_neighbors))]
         return neighbors
 
     def get_mean_distance(self, clusters):

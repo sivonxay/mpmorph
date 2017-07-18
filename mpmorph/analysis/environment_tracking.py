@@ -11,13 +11,13 @@ class EnvironmentTracker():
     def __init__(self):
         pass
 
-    def run(self, structures, frames=None, prune_els=[]):
+    def run(self, structures, frames=None, prune_els=[], n_neighbors=1):
         if frames==None:
             frames = len(structures)
         bond_lengths = self.get_bond_distance(structures)
 
         pool = Pool(multiprocessing.cpu_count())
-        frames = [(i, structures[len(structures)-frames+i], bond_lengths, prune_els) for i in range(frames)]
+        frames = [(i, structures[len(structures)-frames+i], bond_lengths, prune_els, n_neighbors) for i in range(frames)]
         results = pool.map(process_frame, frames)
         pool.close()
         pool.join()
@@ -81,8 +81,8 @@ class EnvironmentTracker():
         return tracking_list
 
 def process_frame(data):
-    frame, structure, bond_lengths, prune_els = \
-        data[0], data[1], data[2], data[3]
+    frame, structure, bond_lengths, prune_els, n_neighbors = \
+        data[0], data[1], data[2], data[3], data[4]
 
     ca = ClusteringAnalyzer(structure, bond_lengths=bond_lengths)
     clusters = ca.get_clusters(prune_els=prune_els)
