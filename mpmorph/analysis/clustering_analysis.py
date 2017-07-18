@@ -87,7 +87,7 @@ class ClusteringAnalyzer(object):
     def get_n_neighbors(self, distance_matrix, radius, n=1):
         _neighbors = self.get_neighbors(distance_matrix, radius)
         neighbors = [[] for i in range(len(_neighbors))]
-        for i in neighbors:
+        for i in range(len(neighbors)):
             neighbor_el = _neighbors[i]
             raw_neighbors = []
             for neighbor in neighbor_el:

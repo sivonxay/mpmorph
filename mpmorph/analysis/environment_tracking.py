@@ -88,4 +88,5 @@ def process_frame(data):
     clusters = ca.get_clusters(prune_els=prune_els)
     neighbors = ca.cluster_neighbors
     track_neighbors = ca.track_neighbors
-    return {"frame":frame, "neighbors":neighbors, "clusters":clusters, "track_neighbors":track_neighbors}
+    return_data = {"frame":frame, "neighbors":neighbors, "clusters":clusters, "track_neighbors":track_neighbors}
+    return return_data
