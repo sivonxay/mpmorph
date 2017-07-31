@@ -152,8 +152,9 @@ def get_relax_static_wf(structures, vasp_cmd=">>vasp_cmd<<", db_file=">>db_file<
     wfs = []
     calc_home = os.path.join(calc_home, "snap_" + str(snap))
     for s in structures:
-        fw1 = OptimizeFW(s, vasp_cmd=vasp_cmd, db_file=db_file, parents=[], spec=priority_spec, **kwargs)
-        fw2 = StaticFW(s, vasp_cmd=vasp_cmd, db_file=db_file, parents=[fw1], spec=priority_spec)
+        _spec = {**priority_spec, "max_force_threshold": None}
+        fw1 = OptimizeFW(s, vasp_cmd=vasp_cmd, db_file=db_file, parents=[], spec=_spec, **kwargs)
+        fw2 = StaticFW(s, vasp_cmd=vasp_cmd, db_file=db_file, parents=[fw1], spec=_spec)
         t = []
         t.append(CopyVaspOutputs(calc_loc=True, contcar_to_poscar=True, additional_files=["XDATCAR", "OSZICAR", "DOSCAR"]))
         if copy_calcs:
